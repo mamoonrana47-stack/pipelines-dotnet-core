@@ -1,0 +1,36 @@
+# ASP.NET Core CI Pipeline
+# Build and Test stages for ASP.NET Core project
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+# Stage 1: Build
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: Build
+    displayName: 'Build ASP.NET Core Project'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - script: dotnet restore
+      displayName: 'Restore Dependencies'
+
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'Build Project'
+
+# Stage 2: Test
+- stage: Test
+  displayName: 'Test Stage'
+  dependsOn: Build
